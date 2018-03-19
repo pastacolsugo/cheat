@@ -1,0 +1,53 @@
+
+-> Stampare array dinamico tramite puntatore (C)
+	http://www.cocoabuilder.com/archive/xcode/319032-lldb-printing-dynamic-arrays.html
+
+	memory read -f (format) -l (line length) -c (count) `pointer`
+		formats: 
+			+ p bynary
+			+ d decimal
+	Exempli gratia
+
+	[resultSize = 10, which is the size of the memory block pointed by result]
+
+	// in this case result is (long long *) so each number is 8 bytes, not 4 as in the 'd' format, so there are zeros
+
+	(lldb) me read -fd -l`resultSize+1` -c`resultSize+1` `result`
+	0x100300000: 2 0 3 0 5 0 7 0 11 0
+	(lldb)
+
+	(lldb) me read -fd -c`resultSize+1` `result`
+	0x100300000: 2
+	0x100300004: 0
+	0x100300008: 3
+	0x10030000c: 0
+	0x100300010: 5
+	0x100300014: 0
+	0x100300018: 7
+	0x10030001c: 0
+	0x100300020: 11
+	0x100300024: 0
+	(lldb) 
+	
+	(lldb) me rea -f"int64_t" --force  -c`resultMax` `result`
+	0x100300000: {2 3 5 7 11 13 17 19 23 29 0 0 0 0 1 0}
+	0x100300080: {1 0 1 1 1 0 1 0 6007571505404802899 7598805460869081463 7021800393920111990 121 1 0 1 1}
+	0x100300100: {1 0 1 1 1 1 1 0 1 0 1 1 1 1 1 0}
+	0x100300180: {1 1 1 0 1 0 1 1 1 0 1 1 1 1 1 0}
+	0x100300200: {1 1 1 1 1 0 1 0 1 1 1 1 1 0 1 1}
+	0x100300280: {1 0 1 0 1 1 1 1 1 0 1 1 1 0 1 1}
+	0x100300300: {1 1 1 0 1 1 1 1 1 1 1 0 1 1 1 0}
+	0x100300380: {0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0}
+	0x100300400: {0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0}
+	0x100300480: {0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0}
+	(lldb) 
+
+
+	+ alternative method: casting the pointer with C operations evaluated by the "expression" command
+		["p" is an abbreviation of "expression --"]
+	
+	(lldb) p *(int(*)[10])result
+	(int [10]) $49 = ([0] = 2, [1] = 0, [2] = 3, [3] = 0, [4] = 5, [5] = 0, [6] = 7, [7] = 0, [8] = 11, [9] = 0)
+	(lldb)
+
+	
